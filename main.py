@@ -2,9 +2,7 @@ from os import path
 from tkinter import PhotoImage, IntVar, StringVar, Tk, Text, messagebox as mb
 from tkinter.ttk import Button, Combobox, Entry, Frame, Label, Notebook, Scrollbar, Spinbox, Style, Treeview
 from tkinter.font import Font
-from turtle import bgcolor
 from clases import *
-
 
 #region funciones
 
@@ -51,7 +49,17 @@ def registrar_usuario():
     contraseña = contraseña_usuario.get()
     usuario = Usuario()
     usuario.insertar(nombre, apellido, legajo, email, nombre_usuarioo, contraseña)
-    vaciar_entry(widgets_usuarios)
+    vaciar_entry(widgets_registrarse.lista_entry)
+    actualizar_treeview(usuario, widgets_usuarios.treeview)
+
+def modificar_usuario():
+    nombre = nombre_mod_usuario.get()
+    apellido = apellido_mod_usuario.get()
+    legajo = legajo_mod_usuario.get()
+    email =email_mod_usuario.get()
+    usuario = Usuario()
+    usuario.modificar(nombre, apellido, legajo, email)
+    vaciar_entry(widgets_registrarse.lista_entry)
     actualizar_treeview(usuario, widgets_usuarios.treeview)
 
 #=========================================================================================
@@ -84,8 +92,6 @@ def eliminar_area():
         actualizar_treeview(area, widgets_areas.treeview)
 
         
-
-
 def crear_ticket():
     print('crear ticket')
 
@@ -180,6 +186,7 @@ nombre_mod_area = StringVar()
 email_mod_area = StringVar()
 telefono_mod_area = StringVar()
 #===================================
+id_mod_usuario = IntVar()
 nombre_usuario = StringVar()
 apellido_usuario = StringVar()
 legajo_usuario = StringVar()
@@ -197,44 +204,45 @@ contraseña_mod_usuario = StringVar()
 
 #region widgets
 
-def widgets_registrarse(self):
+class WidgetsRegistrarse:
+    def __init__(self):
 
-    self.frame_registrarse = Frame()
-    self.frame_registrarse.grid(column=0, row=0, sticky='nsew')
-    self.frame_registrarse.columnconfigure(1, weight=1)
-    self.frame_registrarse.columnconfigure(2, weight=1)
-    self.frame_registrarse.rowconfigure((1,2,3,4,5,6,7), weight=1)
+        self.frame = Frame()
+        self.frame.grid(column=0, row=0, sticky='nsew')
+        self.frame.columnconfigure(1, weight=1)
+        self.frame.columnconfigure(2, weight=1)
+        self.frame.rowconfigure((1,2,3,4,5,6,7), weight=1)
 
-    self.label_img_municipalidad = Label(self.frame_registrarse, image=img_municipalidad)
-    self.label_img_municipalidad.grid(column=2, row=1, rowspan=8)
+        self.label_img_municipalidad = Label(self.frame, image=img_municipalidad)
+        self.label_img_municipalidad.grid(column=2, row=1, rowspan=8)
 
-    self.label_titulo = Label(self.frame_registrarse, style='titulo.TLabel', text='Registrarse en el Sistema')
-    self.label_titulo.grid(column=0, row=0, columnspan=3)
+        self.label_titulo = Label(self.frame, style='titulo.TLabel', text='Registrarse en el Sistema')
+        self.label_titulo.grid(column=0, row=0, columnspan=3)
 
-    self.lista_label_registrarse = [
-        Label(self.frame_registrarse, text='Nombre *'),
-        Label(self.frame_registrarse, text='Apellido *'),
-        Label(self.frame_registrarse, text='Legajo *'),
-        Label(self.frame_registrarse, text='Email *'),
-        Label(self.frame_registrarse, text='Nombre de Usuario *'),
-        Label(self.frame_registrarse, text='Contraseña *'),
-        Label(self.frame_registrarse, text='Repetir Contraseña *')
-    ]
-    self.lista_entry_registrarse = [
-        Entry(self.frame_registrarse, textvariable= nombre_usuario),
-        Entry(self.frame_registrarse, textvariable= apellido_usuario),
-        Entry(self.frame_registrarse, textvariable= legajo_usuario ),
-        Entry(self.frame_registrarse, textvariable= email_usuario),
-        Entry(self.frame_registrarse, textvariable= nombre_usuario_usuario),
-        Entry(self.frame_registrarse, show='*', textvariable= contraseña_usuario),
-        Entry(self.frame_registrarse, show='*')
-    ]
+        self.lista_label = [
+            Label(self.frame, text='Nombre *'),
+            Label(self.frame, text='Apellido *'),
+            Label(self.frame, text='Legajo *'),
+            Label(self.frame, text='Email *'),
+            Label(self.frame, text='Nombre de Usuario *'),
+            Label(self.frame, text='Contraseña *'),
+            Label(self.frame, text='Repetir Contraseña *')
+        ]
+        self.lista_entry = [
+            Entry(self.frame, textvariable= nombre_usuario),
+            Entry(self.frame, textvariable= apellido_usuario),
+            Entry(self.frame, textvariable= legajo_usuario ),
+            Entry(self.frame, textvariable= email_usuario),
+            Entry(self.frame, textvariable= nombre_usuario_usuario),
+            Entry(self.frame, show='*', textvariable= contraseña_usuario),
+            Entry(self.frame, show='*')
+        ]
 
-    self.button_registrarse = Button(self.frame_registrarse, text='Registrarse', command=registrar_usuario, cursor='hand2')
+        self.button_registrarse = Button(self.frame, text='Registrarse', command=registrar_usuario, cursor='hand2')
 
-    posicionar_formulario(self.lista_label_registrarse, self.lista_entry_registrarse, self.button_registrarse)
+        posicionar_formulario(self.lista_label, self.lista_entry, self.button_registrarse)
 
-    notebook_contenido.add(self.frame_registrarse, text='Registrarse')
+        notebook_contenido.add(self.frame, text='Registrarse')
 
 class WidgetsUsuarios:
     def __init__(self):
@@ -252,9 +260,9 @@ class WidgetsUsuarios:
         self.frame_treeview.columnconfigure(0, weight=1)
         self.frame_treeview.rowconfigure(0, weight=1)
 
-        columnas = ('id', 'nombre', 'apellido', 'legajo', 'email', 'tipo_usuario', 'activo')
+        self.columnas = ('id', 'nombre', 'apellido', 'legajo', 'email', 'tipo_usuario', 'activo')
 
-        self.treeview = Treeview(self.frame_treeview, columns=columnas, height=20, show='headings')
+        self.treeview = Treeview(self.frame_treeview, columns=self.columnas, height=20, show='headings')
 
         self.treeview.heading('id', text='ID')
         self.treeview.heading('nombre', text='Nombre')
@@ -283,8 +291,64 @@ class WidgetsUsuarios:
         self.button_eliminar.grid(column=2, row=2, padx=24, pady=(12,8), ipadx=16, ipady=6, sticky='e')
         self.button_modificar = Button(self.frame, text='Modificar', command=modificar_ticket, cursor='hand2')
         self.button_modificar.grid(column=1, row=2, padx=24, pady=(12,8), ipadx=16, ipady=6, sticky='e')
+
+        actualizar_treeview(Usuario(), self.treeview)
+
+        self.lista_variables_mod = [None, None, nombre_mod_usuario, apellido_mod_usuario, legajo_mod_usuario,
+         email_mod_usuario]
+
+        def item_seleccionado(event):
+            for i in self.treeview.selection():
+                item = self.treeview.item(i)
+                record = item['values']
+                id_mod_usuario.set(record[0])
+            for i in range(len(self.lista_variables_mod)):
+                if self.lista_variables_mod[i] != None:
+                    self.lista_variables_mod[i].set(record[i])
+
+        self.treeview.bind('<<TreeviewSelect>>', item_seleccionado)
+
         
         notebook_contenido.add(self.frame, text='usuarios')
+
+class WidgetsModificarUsuario:
+    def __init__(self):
+
+        self.frame = Frame()
+        self.frame.grid(column=0, row=0, sticky='nsew')
+        self.frame.columnconfigure(1, weight=1)
+        self.frame.columnconfigure(2, weight=1)
+        self.frame.rowconfigure((1,2,3,4), weight=1)
+
+        self.label_img_municipalidad = Label(self.frame, image=img_municipalidad)
+        self.label_img_municipalidad.grid(column=2, row=1, rowspan=8)
+
+        self.label_titulo = Label(self.frame, style='titulo.TLabel', text='modificar usuario')
+        self.label_titulo.grid(column=0, row=0, columnspan=3)
+
+        self.lista_label = [
+            Label(self.frame, text='Nombre *'),
+            Label(self.frame, text='Apellido *'),
+            Label(self.frame, text='Legajo *'),
+            Label(self.frame, text='Email *'),
+            
+        ]
+        self.lista_entry = [
+            Entry(self.frame, textvariable= nombre_mod_usuario),
+            Entry(self.frame, textvariable= apellido_mod_usuario),
+            Entry(self.frame, textvariable= legajo_mod_usuario ),
+            Entry(self.frame, textvariable= email_mod_usuario),
+         
+        ]
+
+       
+
+        self.button_aceptar = Button(self.frame, text='aceptar', command=modificar_usuario, cursor='hand2')
+
+        posicionar_formulario(self.lista_label, self.lista_entry, self.button_aceptar)
+
+        notebook_contenido.add(self.frame, text='modificar usuario')
+
 
 class WidgetsAreas:
     def __init__(self):
@@ -303,9 +367,9 @@ class WidgetsAreas:
         self.frame_treeview.columnconfigure(0, weight=1)
         self.frame_treeview.rowconfigure(0, weight=1)
 
-        columnas = ('id', 'nombre', 'email', 'telefono')
+        self.columnas = ('id', 'nombre', 'email', 'telefono')
 
-        self.treeview = Treeview(self.frame_treeview, columns=columnas, height=20, show='headings')
+        self.treeview = Treeview(self.frame_treeview, columns=self.columnas, height=20, show='headings')
 
         self.treeview.heading('id', text='ID')
         self.treeview.heading('nombre', text='Nombre')
@@ -381,191 +445,194 @@ class WidgetsAreas:
 
         notebook_contenido.add(self.frame, text='Áreas')
 
-def widgets_crear_ticket():
+class WidgetsCrearTicket:
+    def __init__(self):
 
-    frame_crear_ticket = Frame()
-    frame_crear_ticket.grid(column=0, row=0, sticky='nsew')
-    frame_crear_ticket.columnconfigure((1,2), weight=1)
-    frame_crear_ticket.rowconfigure((1,2,3,4,5,6), weight=1)
+        self.frame = Frame()
+        self.frame.grid(column=0, row=0, sticky='nsew')
+        self.frame.columnconfigure((1,2), weight=1)
+        self.frame.rowconfigure((1,2,3,4,5,6), weight=1)
 
-    label_titulo = Label(frame_crear_ticket, style='titulo.TLabel', text='Nuevo Ticket')
-    label_titulo.grid(column=0, row=0, columnspan=2)
+        self.label_titulo = Label(self.frame, style='titulo.TLabel', text='Nuevo Ticket')
+        self.label_titulo.grid(column=0, row=0, columnspan=2)
 
-    lista_label_crear_ticket = [
-        Label(frame_crear_ticket, text='Asunto *'),
-        Label(frame_crear_ticket, text='Área *'),
-        Label(frame_crear_ticket, text='Prioridad *'),
-        Label(frame_crear_ticket, text='Código Hardware  '),
-        Label(frame_crear_ticket, text='Técnico  '),
-        Label(frame_crear_ticket, text='Detalle *')
-    ]
+        self.lista_label = [
+            Label(self.frame, text='Asunto *'),
+            Label(self.frame, text='Área *'),
+            Label(self.frame, text='Prioridad *'),
+            Label(self.frame, text='Código Hardware  '),
+            Label(self.frame, text='Técnico  '),
+            Label(self.frame, text='Detalle *')
+        ]
 
-    lista_entry_crear_ticket = [
-        Entry(frame_crear_ticket),
-        Combobox(frame_crear_ticket,values=lista_areas, state='readonly'),
-        Combobox(frame_crear_ticket,values=lista_prioridades, state='readonly'),
-        Entry(frame_crear_ticket),
-        Combobox(frame_crear_ticket, values=lista_tecnicos, state='readonly'),
-        text_con_scrollbar(frame_crear_ticket)
-    ]
+        self.lista_entry = [
+            Entry(self.frame),
+            Combobox(self.frame,values=lista_areas, state='readonly'),
+            Combobox(self.frame,values=lista_prioridades, state='readonly'),
+            Entry(self.frame),
+            Combobox(self.frame, values=lista_tecnicos, state='readonly'),
+            text_con_scrollbar(self.frame)
+        ]
 
-    button_crear_ticket = Button(frame_crear_ticket, text='Crear', command=crear_ticket, cursor='hand2')
+        self.button_crear = Button(self.frame, text='Crear', command=crear_ticket, cursor='hand2')
 
-    posicionar_formulario(lista_label_crear_ticket, lista_entry_crear_ticket, button_crear_ticket)
+        posicionar_formulario(self.lista_label, self.lista_entry, self.button_crear)
 
-    notebook_contenido.add(frame_crear_ticket, text='Crear Ticket')
+        notebook_contenido.add(self.frame, text='Crear Ticket')
 
-def widgets_mostrar_tickets():
+class WidgetsMostrarTickets:
+    def __init__(self):
+        self.frame = Frame()
+        self.frame.grid(column=0, row=0, sticky='nsew')
+        self.frame.columnconfigure(0, weight=1)
+        self.frame.rowconfigure(1, weight=1)
 
-    frame_mostrar_tickets = Frame()
-    frame_mostrar_tickets.grid(column=0, row=0, sticky='nsew')
-    frame_mostrar_tickets.columnconfigure(0, weight=1)
-    frame_mostrar_tickets.rowconfigure(1, weight=1)
+        self.label_titulo = Label(self.frame, style='titulo.TLabel', text='Tickets')
+        self.label_titulo.grid(column=0, row=0, columnspan=2)
 
-    label_titulo = Label(frame_mostrar_tickets, style='titulo.TLabel', text='Tickets')
-    label_titulo.grid(column=0, row=0, columnspan=2)
+        self.frame_treeview = Frame(self.frame)
+        self.frame_treeview.grid(column=0, row=1, padx=24, pady=(12,8), sticky='nsew')
+        self.frame_treeview.columnconfigure(0, weight=1)
+        self.frame_treeview.rowconfigure(0, weight=1)
 
-    frame_treeview_tickets = Frame(frame_mostrar_tickets)
-    frame_treeview_tickets.grid(column=0, row=1, padx=24, pady=(12,8), sticky='nsew')
-    frame_treeview_tickets.columnconfigure(0, weight=1)
-    frame_treeview_tickets.rowconfigure(0, weight=1)
+        self.columnas = ('numero', 'nombre', 'area', 'asunto', 'estado', 'fecha_inicio', 'ultima_respuesta')
 
-    columnas = ('numero', 'nombre', 'area', 'asunto', 'estado', 'fecha_inicio', 'ultima_respuesta')
+        self.treeview = Treeview(self.frame_treeview, columns=self.columnas, height=20, show='headings')
 
-    treeview_tickets = Treeview(frame_treeview_tickets, columns=columnas, height=20, show='headings')
+        self.treeview.heading('numero', text='Nº')
+        self.treeview.heading('nombre', text='Nombre')
+        self.treeview.heading('area', text='Área')
+        self.treeview.heading('asunto', text='Asunto')
+        self.treeview.heading('estado', text='Estado')
+        self.treeview.heading('fecha_inicio', text='Fecha Inicio')
+        self.treeview.heading('ultima_respuesta', text='Última Respuesta')
 
-    treeview_tickets.heading('numero', text='Nº')
-    treeview_tickets.heading('nombre', text='Nombre')
-    treeview_tickets.heading('area', text='Área')
-    treeview_tickets.heading('asunto', text='Asunto')
-    treeview_tickets.heading('estado', text='Estado')
-    treeview_tickets.heading('fecha_inicio', text='Fecha Inicio')
-    treeview_tickets.heading('ultima_respuesta', text='Última Respuesta')
+        self.treeview.column('numero', minwidth=40, width=0)
+        self.treeview.column('nombre', minwidth=40, width=0)
+        self.treeview.column('area', minwidth=40, width=0)
+        self.treeview.column('asunto', minwidth=40)
+        self.treeview.column('estado', minwidth=40, width=0)
+        self.treeview.column('fecha_inicio', minwidth=40, width=0)
+        self.treeview.column('ultima_respuesta', minwidth=40, width=0)
 
-    treeview_tickets.column('numero', minwidth=40, width=0)
-    treeview_tickets.column('nombre', minwidth=40, width=0)
-    treeview_tickets.column('area', minwidth=40, width=0)
-    treeview_tickets.column('asunto', minwidth=40)
-    treeview_tickets.column('estado', minwidth=40, width=0)
-    treeview_tickets.column('fecha_inicio', minwidth=40, width=0)
-    treeview_tickets.column('ultima_respuesta', minwidth=40, width=0)
+        # datos ejemplo
+        ejemplos = []
+        for i in range(1, 101):
+            ejemplos.append((f'#{i}', f'Nombre {i}', f'Área {i}', f'Asunto {i}', f'Estado {i}', f'Fecha Inicio {i}', f'Última Modificación {i}'))
+        for i in ejemplos:
+            self.treeview.insert('', 'end', values=i)
 
-    # datos ejemplo
-    ejemplos_tickets = []
-    for i in range(1, 101):
-        ejemplos_tickets.append((f'#{i}', f'Nombre {i}', f'Área {i}', f'Asunto {i}', f'Estado {i}', f'Fecha Inicio {i}', f'Última Modificación {i}'))
-    for i in ejemplos_tickets:
-        treeview_tickets.insert('', 'end', values=i)
+        def item_seleccionado(event):
+            for i in self.treeview.selection():
+                item = self.treeview.item(i)
+                record = item['values']
+                print(', '.join(record))
+        
 
-    def item_seleccionado(event):
-        for i in treeview_tickets.selection():
-            item = treeview_tickets.item(i)
-            record = item['values']
-            print(', '.join(record))
-    
+        self.treeview.bind('<<TreeviewSelect>>', item_seleccionado)
 
-    treeview_tickets.bind('<<TreeviewSelect>>', item_seleccionado)
+        self.treeview.grid(column=0, row=0, sticky='nsew')
 
-    treeview_tickets.grid(column=0, row=0, sticky='nsew')
+        self.scrollbar = Scrollbar(self.frame_treeview, command=self.treeview.yview)
+        self.treeview.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.grid(row=0, column=1, sticky='ns')
 
-    scrollbar_tickets = Scrollbar(frame_treeview_tickets, command=treeview_tickets.yview)
-    treeview_tickets.configure(yscrollcommand=scrollbar_tickets.set)
-    scrollbar_tickets.grid(row=0, column=1, rowspan=5, sticky='ns')
+        self.button_modificar = Button(self.frame, text='Modificar', command=modificar_ticket, cursor='hand2')
+        self.button_modificar.grid(column=0, row=2, padx=24, pady=(12,8), ipadx=16, ipady=6, sticky='e')
 
-    button_modificar_ticket = Button(frame_mostrar_tickets, text='Modificar', command=modificar_ticket, cursor='hand2')
-    button_modificar_ticket.grid(column=0, row=2, padx=24, pady=(12,8), ipadx=16, ipady=6, sticky='e')
+        notebook_contenido.add(self.frame, text='Mostrar Tickets')
 
-    notebook_contenido.add(frame_mostrar_tickets, text='Mostrar Tickets')
+class WidgetsCrearPedido():
+    def __init__(self):
 
-def widgets_crear_pedido():
+        self.frame = Frame()
+        self.frame.grid(column=0, row=0, sticky='nsew')
+        self.frame.columnconfigure((1,3), weight=1)
+        self.frame.rowconfigure((1,2,3,4,5,6), weight=1)
 
-    frame_crear_pedido = Frame()
-    frame_crear_pedido.grid(column=0, row=0, sticky='nsew')
-    frame_crear_pedido.columnconfigure((1,3), weight=1)
-    frame_crear_pedido.rowconfigure((1,2,3,4,5,6), weight=1)
+        self.label_titulo = Label(self.frame, style='titulo.TLabel', text='Nuevo Pedido de Abastecimiento')
+        self.label_titulo.grid(column=0, row=0, columnspan=4)
 
-    label_titulo = Label(frame_crear_pedido, style='titulo.TLabel', text='Nuevo Pedido de Abastecimiento')
-    label_titulo.grid(column=0, row=0, columnspan=4)
+        self.lista_label = [
+            Label(self.frame, text='Artículo *'),
+            Label(self.frame, text='Modelo *'),
+            Label(self.frame, text='Cantidad *'),
+            Label(self.frame, text='Descripción  ')
+        ]
 
-    lista_label_crear_pedido = [
-        Label(frame_crear_pedido, text='Artículo *'),
-        Label(frame_crear_pedido, text='Modelo *'),
-        Label(frame_crear_pedido, text='Cantidad *'),
-        Label(frame_crear_pedido, text='Descripción  ')
-    ]
+        self.frame_descripcion = Frame(self.frame)
+        self.frame_descripcion.columnconfigure(0, weight=1)
 
-    frame_descripcion = Frame(frame_crear_pedido)
-    frame_descripcion.columnconfigure(0, weight=1)
+        self.lista_entry = [
+            Combobox(self.frame, values=lista_articulos, state='readonly'),
+            Entry(self.frame),
+            Spinbox(self.frame, from_=1, to=9999),
+            text_con_scrollbar(self.frame)
+        ]
 
-    lista_entry_crear_pedido = [
-        Combobox(frame_crear_pedido, values=lista_articulos, state='readonly'),
-        Entry(frame_crear_pedido),
-        Spinbox(frame_crear_pedido, from_=1, to=9999),
-        text_con_scrollbar(frame_crear_pedido)
-    ]
+        self.button_agregar_detalle = Button(self.frame, text='Agregar', command=agregar_detalle_pedido, cursor='hand2')
 
-    button_agregar_detalle = Button(frame_crear_pedido, text='Agregar', command=agregar_detalle_pedido, cursor='hand2')
+        posicionar_formulario(self.lista_label, self.lista_entry, self.button_agregar_detalle, row=3)
 
-    posicionar_formulario(lista_label_crear_pedido, lista_entry_crear_pedido, button_agregar_detalle, row=3)
+        # 2ª columna
 
-    # 2ª columna
+        self.lista_label_detalle = [
+            Label(self.frame, text='Ticket Nº'),
+            Label(self.frame, text='Código de Pedido *')
+        ]
 
-    lista_label_detalle_pedido = [
-        Label(frame_crear_pedido, text='Ticket Nº'),
-        Label(frame_crear_pedido, text='Código de Pedido *')
-    ]
+        self.lista_entry_detalle = [
+            Entry(self.frame, state='readonly'),
+            Entry(self.frame)
+        ]
 
-    lista_entry_detalle_pedido = [
-        Entry(frame_crear_pedido, state='readonly'),
-        Entry(frame_crear_pedido)
-    ]
+        posicionar_formulario(self.lista_label_detalle, self.lista_entry_detalle, column=2, row=1)
 
-    posicionar_formulario(lista_label_detalle_pedido, lista_entry_detalle_pedido, column=2, row=1)
+        self.frame_detalle = Frame(self.frame)
+        self.frame_detalle.grid(column=2, row=3, columnspan=2, rowspan=4, padx=24, pady=(12,8), sticky='nsew')
+        self.frame_detalle.columnconfigure(0, weight=1)
+        self.frame_detalle.rowconfigure(0, weight=1)
 
-    frame_detalle_pedido = Frame(frame_crear_pedido)
-    frame_detalle_pedido.grid(column=2, row=3, columnspan=2, rowspan=4, padx=24, pady=(12,8), sticky='nsew')
-    frame_detalle_pedido.columnconfigure(0, weight=1)
-    frame_detalle_pedido.rowconfigure(0, weight=1)
+        self.columnas = ('articulo', 'modelo', 'cantidad', 'descripcion')
 
-    columnas = ('articulo', 'modelo', 'cantidad', 'descripcion')
+        self.treeview = Treeview(self.frame_detalle, columns=self.columnas, height=0, show='headings')
 
-    treeview_pedidos = Treeview(frame_detalle_pedido, columns=columnas, height=0, show='headings')
+        self.treeview.heading('articulo', text='Artículo')
+        self.treeview.heading('modelo', text='Modelo')
+        self.treeview.heading('cantidad', text='Cantidad')
+        self.treeview.heading('descripcion', text='Descripción')
 
-    treeview_pedidos.heading('articulo', text='Artículo')
-    treeview_pedidos.heading('modelo', text='Modelo')
-    treeview_pedidos.heading('cantidad', text='Cantidad')
-    treeview_pedidos.heading('descripcion', text='Descripción')
+        self.treeview.column('articulo', minwidth=40, width=0)
+        self.treeview.column('modelo', minwidth=40, width=0)
+        self.treeview.column('cantidad', minwidth=40, width=0)
+        self.treeview.column('descripcion', minwidth=40)
 
-    treeview_pedidos.column('articulo', minwidth=40, width=0)
-    treeview_pedidos.column('modelo', minwidth=40, width=0)
-    treeview_pedidos.column('cantidad', minwidth=40, width=0)
-    treeview_pedidos.column('descripcion', minwidth=40)
+        def item_seleccionado(event):
+            for i in self.treeview.selection():
+                item = self.treeview.item(i)
+                record = item['values']
+                print(', '.join(record))
 
-    def item_seleccionado(event):
-        for i in treeview_pedidos.selection():
-            item = treeview_pedidos.item(i)
-            record = item['values']
-            print(', '.join(record))
+        self.treeview.bind('<<TreeviewSelect>>', item_seleccionado)
 
-    treeview_pedidos.bind('<<TreeviewSelect>>', item_seleccionado)
+        self.treeview.grid(column=0, row=0, sticky='nsew')
 
-    treeview_pedidos.grid(column=0, row=0, sticky='nsew')
+        self.scrollbar = Scrollbar(self.frame_detalle, command=self.treeview.yview)
+        self.treeview.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.grid(row=0, column=1, sticky='ns')
 
-    scrollbar_pedidos = Scrollbar(frame_detalle_pedido, command=treeview_pedidos.yview)
-    treeview_pedidos.configure(yscrollcommand=scrollbar_pedidos.set)
-    scrollbar_pedidos.grid(row=0, column=1, sticky='ns')
+        self.button_crear = Button(self.frame, text='Crear', command=crear_pedido, cursor='hand2')
+        self.button_crear.grid(column=3, row=7, padx=24, pady=(12,8), ipadx=16, ipady=6, sticky='e')
 
-    button_crear_pedido = Button(frame_crear_pedido, text='Crear', command=crear_pedido, cursor='hand2')
-    button_crear_pedido.grid(column=3, row=7, padx=24, pady=(12,8), ipadx=16, ipady=6, sticky='e')
-
-    notebook_contenido.add(frame_crear_pedido, text='Crear Pedido')
+        notebook_contenido.add(self.frame, text='Crear Pedido')
 
 #endregion
 
-widgets_registrarse()
+widgets_registrarse = WidgetsRegistrarse()
 widgets_areas = WidgetsAreas()
-widgets_crear_ticket()
-widgets_mostrar_tickets()
-widgets_crear_pedido()
+widgets_crear_ticket = WidgetsCrearTicket()
+widgets_mostrar_tickets = WidgetsMostrarTickets()
+widgets_crear_pedido = WidgetsCrearPedido()
 widgets_usuarios = WidgetsUsuarios()
+widgets_modificar_usuario = WidgetsModificarUsuario()
 ventana.mainloop()
