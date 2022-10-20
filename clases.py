@@ -11,7 +11,7 @@ class Usuario:
         con = self.conexion.cursor()
         #LOS NOMBRES DE COLUMNAS TAL CUAL COMO ESTAN EN LA BASE
         sql=f'''INSERT INTO usuario (nombre, apellido, legajo, email, nombre_usuario, contraseña)
-        VALUES('{nombre}','{apellido}','{legajo}''{email}','{nombre_usuario}', '{contraseña}')'''
+        VALUES('{nombre}','{apellido}','{legajo}','{email}','{nombre_usuario}', '{contraseña}')'''
         con.execute(sql)
         self.conexion.commit()
         con.close()
